@@ -4,8 +4,8 @@ module.exports = async (client, interaction, args) => {
     let row = new Discord.ActionRowBuilder()
         .addComponents(
             new Discord.ButtonBuilder()
-                .setLabel("Out of order")
-                .setURL("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+                .setLabel("CorwinDev GitHub")
+                .setURL("https://github.com/sponsors/CorwinDev")
                 .setStyle(Discord.ButtonStyle.Link),
         );
 

@@ -21,7 +21,7 @@ module.exports = async (client, message) => {
 
   if (message.author.bot) return;
 
-  if (message.channel.type === "DM") {
+  if (message.channel.type === Discord.ChannelType.DM) {
     let embedLogs = new Discord.EmbedBuilder()
       .setTitle(`💬・New DM message!`)
       .setDescription(`Bot has received a new DM message!`)
@@ -221,35 +221,65 @@ module.exports = async (client, message) => {
   chatBotSchema.findOne({ Guild: message.guild.id }, async (err, data) => {
     if (!data) return;
     if (message.channel.id !== data.Channel) return;
-    try {
-      const input = message;
-      try {
-        fetch(
-          `https://api.coreware.nl/fun/chat?msg=${encodeURIComponent(input)}`
-        )
-          .catch(() => { console.log })
-          .then((res) => res.json())
-          .catch(() => { console.log })
-          .then(async (json) => {
-            // console.log(json);
-            if (json) {
-              if (
-                json.response !== " " ||
-                json.response !== undefined ||
-                json.response !== "" ||
-                json.response !== null
-              ) {
-                try {
-                  return message
-                    .reply({ content: `${json.response}` })
-                    .catch(() => { });
-                } catch { }
-              }
-            }
+    if (process.env.OPENAI) {
+      fetch(
+        `https://api.openai.com/v1/completions`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + process.env.OPENAI,
+          },
+          // body: '{\n  "model": "text-davinci-003",\n  "prompt": "What is your name?",\n  "max_tokens": 4000,\n  "temperature": 0\n}',
+          body: JSON.stringify({
+            'model': 'text-davinci-003',
+            'prompt': message.content,
+            'temperature': 0,
+            'max_tokens': 256,
+            'top_p': 1,
+            'frequency_penalty': 0,
+            'presence_penalty': 0,
           })
-          .catch(() => { });
+        }
+      )
+        .catch(() => {
+        })
+        .then((res) => {
+          res.json().then((data) => {
+            message.channel.send({ content: data.choices[0].text });
+          });
+        });
+    } else {
+      try {
+        const input = message;
+        try {
+          fetch(
+            `https://api.coreware.nl/fun/chat?msg=${encodeURIComponent(input)}`
+          )
+            .catch(() => { console.log })
+            .then((res) => res.json())
+            .catch(() => { console.log})
+            .then(async (json) => {
+              console.log(json);
+              if (json) {
+                if (
+                  json.response !== " " ||
+                  json.response !== undefined ||
+                  json.response !== "" ||
+                  json.response !== null
+                ) {
+                  try {
+                    return message
+                      .reply({ content: json.response })
+                      .catch(() => { });
+                  } catch { }
+                }
+              }
+            })
+            .catch(() => { });
+        } catch { }
       } catch { }
-    } catch { }
+    }
   });
 
   // Sticky messages

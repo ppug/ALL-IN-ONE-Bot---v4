@@ -5,7 +5,7 @@ module.exports = async (client, interaction, args) => {
 
     if (!msg) return client.errUsage({ usage: "gif [text]", type: 'editreply' }, interaction);
 
-    var giphy = require('giphy-api')(process.env.GIPHY_TOKEN ? process.env.GIPHY_TOKEN : "fVOXbfcBdwPBcdbkW8fXWpovxitLDb4K" );
+    var giphy = require('giphy-api')(process.env.GIPHY_TOKEN);
 
     giphy.random(msg, function (err, res) {
         client.embed({

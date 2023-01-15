@@ -21,6 +21,7 @@ module.exports = {
    */
 
   run: async (client, interaction, args) => {
+    await interaction.deferReply({ fetchReply: true });
     const perms = await client.checkPerms(
       {
         flags: [Discord.PermissionsBitField.Flags.ManageMessages],
@@ -115,10 +116,6 @@ module.exports = {
     collector.on("collect", async (i) => {
       if (i.customId === "embedSelect") {
         i.deferUpdate();
-        const embedData = i.message.embeds[0];
-        // if (embedData.description == "Please select some options") {
-        //   embed.setDescription(``);
-        // }
 
         if (i.values == "title_embed") {
           interaction.channel
@@ -344,7 +341,8 @@ module.exports = {
           );
 
         channel
-          .createWebhook(interaction.guild.name, {
+          .createWebhook({
+            name: interaction.guild.name,
             avatar: interaction.guild.iconURL(),
           })
           .then(async (_webhook) => {

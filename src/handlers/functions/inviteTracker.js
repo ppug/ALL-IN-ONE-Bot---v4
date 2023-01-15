@@ -40,10 +40,11 @@ module.exports = async (client) => {
     client.on(Discord.Events.GuildMemberAdd, async member => {
         try {
             const cachedInvites = guildInvites.get(member.guild.id)
-            const newInvites = await member.guild.invites.fetch().catch(() => { });
+            const newInvites = await member.guild.invites.fetch().catch(() => { console.log});
+
             guildInvites.set(member.guild.id, newInvites)
 
-            const usedInvite = newInvites.find(inv => cachedInvites.get(inv.code).uses < inv.uses)
+            const usedInvite = newInvites.find(inv => cachedInvites.get(inv.code) < inv.uses)
             if (!usedInvite) return client.emit("inviteJoin", member, null, null);
 
             client.emit("inviteJoin", member, usedInvite, usedInvite.inviter);
